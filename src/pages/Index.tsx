@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 
 const Index = () => {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-golden overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center bg-dark-bg overflow-hidden">
       {/* Geometric background pattern */}
       <div className="absolute inset-0 opacity-40">
         <svg
@@ -16,21 +16,21 @@ const Index = () => {
           {/* Grid pattern */}
           <defs>
             <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="white" strokeWidth="2" />
+              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="hsl(var(--golden-background))" strokeWidth="2" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
           
           {/* Geometric shapes */}
-          <circle cx="200" cy="200" r="100" fill="none" stroke="white" strokeWidth="3" />
-          <circle cx="1720" cy="300" r="150" fill="none" stroke="white" strokeWidth="3" />
-          <path d="M 400 600 L 600 800 L 400 1000 L 200 800 Z" fill="none" stroke="white" strokeWidth="3" />
-          <path d="M 1500 700 L 1700 500 L 1900 700 L 1700 900 Z" fill="none" stroke="white" strokeWidth="3" />
+          <circle cx="200" cy="200" r="100" fill="none" stroke="hsl(var(--golden-background))" strokeWidth="3" />
+          <circle cx="1720" cy="300" r="150" fill="none" stroke="hsl(var(--golden-background))" strokeWidth="3" />
+          <path d="M 400 600 L 600 800 L 400 1000 L 200 800 Z" fill="none" stroke="hsl(var(--golden-background))" strokeWidth="3" />
+          <path d="M 1500 700 L 1700 500 L 1900 700 L 1700 900 Z" fill="none" stroke="hsl(var(--golden-background))" strokeWidth="3" />
           
           {/* Additional lines */}
-          <line x1="0" y1="400" x2="500" y2="400" stroke="white" strokeWidth="3" />
-          <line x1="1420" y1="0" x2="1420" y2="500" stroke="white" strokeWidth="3" />
-          <line x1="800" y1="0" x2="1200" y2="400" stroke="white" strokeWidth="3" />
+          <line x1="0" y1="400" x2="500" y2="400" stroke="hsl(var(--golden-background))" strokeWidth="3" />
+          <line x1="1420" y1="0" x2="1420" y2="500" stroke="hsl(var(--golden-background))" strokeWidth="3" />
+          <line x1="800" y1="0" x2="1200" y2="400" stroke="hsl(var(--golden-background))" strokeWidth="3" />
         </svg>
       </div>
 

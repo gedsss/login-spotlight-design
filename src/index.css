@@ -41,6 +41,7 @@ All colors MUST be HSL.
     /* Golden theme colors inspired by Meridian design */
     --golden-background: 45 90% 65%;
     --golden-dark: 45 85% 45%;
+    --dark-bg: 220 13% 18%;
     --login-box: 0 0% 0%;
     --login-box-foreground: 0 0% 100%;
 
@@ -93,6 +94,7 @@ All colors MUST be HSL.
     /* Golden theme colors - dark mode */
     --golden-background: 45 90% 65%;
     --golden-dark: 45 85% 45%;
+    --dark-bg: 220 13% 18%;
     --login-box: 0 0% 0%;
     --login-box-foreground: 0 0% 100%;
     
