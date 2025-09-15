@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 
 const Index = () => {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-dark-bg overflow-hidden">
+    <div className="relative flex h-screen w-full items-center justify-center bg-dark-bg overflow-hidden">
       {/* Geometric background pattern */}
       <div className="absolute inset-0 opacity-40">
         <svg
