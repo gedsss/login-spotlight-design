@@ -3,127 +3,166 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import * as StellarSdk from 'stellar-sdk';
-import { Wallet, CheckCircle, AlertCircle, Key } from "lucide-react";
-import freighterApi, { 
-  isConnected, 
-  isAllowed, 
-  requestAccess
-} from '@stellar/freighter-api';
+import { TransactionBuilder, Networks } from 'stellar-sdk';
+import { Wallet, CheckCircle, AlertCircle, Key, Shield } from "lucide-react";
+import { isConnected, signTransaction } from '@stellar/freighter-api';
+import { toast } from '@/hooks/use-toast';
+
+type ConnectionStatus = 'idle' | 'connecting' | 'challenge' | 'verifying' | 'connected' | 'error';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'verified' | 'connected' | 'error'>('idle');
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('idle');
   const [userAddress, setUserAddress] = useState<string>('');
   const [publicKeyInput, setPublicKeyInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [challengeData, setChallengeData] = useState<{transaction: string, transactionId: string} | null>(null);
 
-  // Helper para evitar ficar carregando eternamente
-  const withTimeout = <T,>(promise: Promise<T>, ms = 5000, timeoutMessage = 'Tempo esgotado aguardando resposta do Freighter.'): Promise<T> => {
-    return new Promise<T>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
-      promise.then(
-        (val) => { clearTimeout(timer); resolve(val); },
-        (err) => { clearTimeout(timer); reject(err); }
-      );
-    });
-  };
+  const EDGE_FUNCTION_URL = 'https://coguyaxzvbakmypoxiuh.supabase.co/functions/v1/stellar-auth';
 
-  // Tenta usar getPublicKey; se indisponível, faz fallback para getAddress
-  const fetchPublicKey = async (): Promise<string> => {
+  // Gerar desafio de autenticação SEP-10
+  const generateChallenge = async () => {
     try {
-      const maybeGetPublicKey = (freighterApi as any).getPublicKey;
-      if (typeof maybeGetPublicKey === 'function') {
-        const pk = await withTimeout<string>(maybeGetPublicKey(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
-        if (pk) return pk;
-      }
-    } catch (_e) {
-      // Ignora e tenta fallback
-    }
+      const response = await fetch(`${EDGE_FUNCTION_URL}/challenge`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const addressResult = await withTimeout<any>((freighterApi as any).getAddress(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
-    if (addressResult?.address) return addressResult.address;
-    throw new Error('Não foi possível obter a chave pública da carteira.');
+      if (!response.ok) {
+        throw new Error('Erro ao gerar desafio de autenticação');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Erro ao gerar desafio:', error);
+      throw error;
+    }
   };
-  const connectFreighter = async () => {
+
+  // Verificar a transação assinada
+  const verifyChallenge = async (signedXdr: string, transactionId: string) => {
+    try {
+      const response = await fetch(`${EDGE_FUNCTION_URL}/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          signedTransaction: signedXdr,
+          transactionId: transactionId
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao verificar autenticação');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Erro ao verificar desafio:', error);
+      throw error;
+    }
+  };
+
+  // Iniciar processo de autenticação SEP-10
+  const startAuthentication = async () => {
     setIsConnecting(true);
     setConnectionStatus('connecting');
     setErrorMessage('');
-    
-    // Timeout de 5 segundos para todo o processo
+
+    // Timeout de 5 segundos para verificar Freighter
     const connectionTimeout = setTimeout(() => {
       setIsConnecting(false);
       setConnectionStatus('error');
       setErrorMessage('Tempo esgotado. A conexão com Freighter demorou mais de 5 segundos.');
     }, 5000);
-    
+
     try {
-      // Verificar se Freighter está instalado (com timeout)
+      // Verificar se Freighter está instalado
       const connected = await Promise.race([
         isConnected(),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Timeout: Freighter não respondeu')), 3000)
         )
       ]);
-      
+
       if (!connected) {
         throw new Error('Freighter não está instalado. Por favor, instale a extensão Freighter.');
       }
 
-      // Verificar se já temos permissão (com timeout)  
-      const allowed = await Promise.race([
-        isAllowed(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout: Verificação de permissão falhou')), 2000)
-        )
-      ]);
-      
-      if (!allowed) {
-        // Solicitar acesso com timeout
-        const accessResult = await Promise.race([
-          requestAccess(),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout: Usuário demorou para responder')), 5000)
-          )
-        ]);
-        
-        if (!accessResult) {
-          throw new Error('Acesso negado pelo usuário.');
-        }
-      }
-
-      // Limpar timeout e marcar como verificado
       clearTimeout(connectionTimeout);
-      setConnectionStatus('verified');
+
+      // Gerar desafio SEP-10
+      const challenge = await generateChallenge();
+      setChallengeData(challenge);
+      setConnectionStatus('challenge');
       setIsConnecting(false);
-      
+
+      toast({
+        title: "Desafio gerado",
+        description: "Agora assine a transação com sua carteira Freighter",
+      });
+
     } catch (error: any) {
       clearTimeout(connectionTimeout);
-      console.error('Erro ao conectar com Freighter:', error);
+      console.error('Erro ao iniciar autenticação:', error);
       setConnectionStatus('error');
       setErrorMessage(error.message || 'Erro desconhecido ao conectar com Freighter');
       setIsConnecting(false);
     }
   };
 
-  const validateAndSubmitPublicKey = () => {
-    const trimmedKey = publicKeyInput.trim();
-    
-    // Use the official Stellar SDK for validation
-    if (!StellarSdk.StrKey.isValidEd25519PublicKey(trimmedKey)) {
-        setErrorMessage('Chave pública inválida. Por favor, verifique e tente novamente.');
-        return;
+  // Assinar e verificar o desafio
+  const signAndVerifyChallenge = async () => {
+    if (!challengeData) {
+      setErrorMessage('Nenhum desafio encontrado');
+      return;
     }
 
-    setUserAddress(trimmedKey);
-    setConnectionStatus('connected');
+    setIsConnecting(true);
+    setConnectionStatus('verifying');
     setErrorMessage('');
-    
-    // Aguardar um pouco antes de navegar
-    setTimeout(() => {
-      navigate('/donation');
-    }, 1500);
+
+    try {
+      // Assinar a transação com Freighter
+      const signedResult = await signTransaction(challengeData.transaction, {
+        networkPassphrase: Networks.TESTNET,
+        address: publicKeyInput.trim()
+      });
+
+      // Verificar a assinatura no backend
+      const verificationResult = await verifyChallenge(signedResult.signedTxXdr, challengeData.transactionId);
+
+      if (verificationResult.success) {
+        setUserAddress(verificationResult.userPublicKey);
+        setConnectionStatus('connected');
+        
+        toast({
+          title: "Autenticação bem-sucedida!",
+          description: `Conectado como: ${verificationResult.userPublicKey.slice(0, 8)}...${verificationResult.userPublicKey.slice(-8)}`,
+        });
+
+        // Navegar para a página de doação após 2 segundos
+        setTimeout(() => {
+          navigate('/donation');
+        }, 2000);
+      } else {
+        throw new Error('Falha na verificação da autenticação');
+      }
+
+    } catch (error: any) {
+      console.error('Erro ao assinar/verificar desafio:', error);
+      setConnectionStatus('error');
+      setErrorMessage(error.message || 'Erro ao processar autenticação');
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -159,26 +198,26 @@ const Index = () => {
         </svg>
       </div>
 
-      {/* Freighter Connection Box */}
+      {/* SEP-10 Authentication Box */}
       <div className="relative z-10 bg-theme-surface text-theme-surface-foreground p-8 rounded-lg shadow-2xl w-96 border-2 border-theme-details/20">
-        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-theme-surface-foreground">CONECTE SUA CARTEIRA!</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-theme-surface-foreground">AUTENTICAÇÃO STELLAR</h1>
         
         <div className="space-y-6">
           {connectionStatus === 'idle' && (
             <>
               <div className="text-center space-y-3">
-                <Wallet className="mx-auto h-12 w-12 text-theme-details" />
+                <Shield className="mx-auto h-12 w-12 text-theme-details" />
                 <p className="text-sm text-theme-surface-foreground">
-                  Conecte sua carteira Freighter para fazer doações na rede Stellar
+                  Autentique-se usando o protocolo SEP-10 da rede Stellar
                 </p>
               </div>
               
               <Button 
-                onClick={connectFreighter}
+                onClick={startAuthentication}
                 disabled={isConnecting}
                 className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
               >
-                {isConnecting ? 'Conectando...' : 'Conectar Freighter'}
+                {isConnecting ? 'Conectando...' : 'Iniciar Autenticação'}
               </Button>
             </>
           )}
@@ -187,20 +226,20 @@ const Index = () => {
             <div className="text-center space-y-3">
               <div className="animate-spin mx-auto h-8 w-8 border-2 border-theme-details border-t-transparent rounded-full"></div>
               <p className="text-sm text-theme-surface-foreground">
-                Conectando com Freighter...
+                Verificando Freighter e gerando desafio...
               </p>
             </div>
           )}
 
-          {connectionStatus === 'verified' && (
+          {connectionStatus === 'challenge' && (
             <div className="text-center space-y-4">
               <Key className="mx-auto h-12 w-12 text-theme-details" />
               <div className="space-y-3">
                 <p className="text-sm text-theme-surface-foreground">
-                  Freighter verificado com sucesso!
+                  Desafio gerado com sucesso!
                 </p>
                 <p className="text-xs text-theme-surface-foreground/70">
-                  Agora digite sua chave pública para continuar:
+                  Digite sua chave pública e assine a transação:
                 </p>
               </div>
               
@@ -211,7 +250,7 @@ const Index = () => {
                   value={publicKeyInput}
                   onChange={(e) => {
                     setPublicKeyInput(e.target.value);
-                    setErrorMessage(''); // Limpa erro ao digitar
+                    setErrorMessage('');
                   }}
                   className="w-full text-xs"
                 />
@@ -219,12 +258,22 @@ const Index = () => {
                   <p className="text-xs text-red-500">{errorMessage}</p>
                 )}
                 <Button 
-                  onClick={validateAndSubmitPublicKey}
+                  onClick={signAndVerifyChallenge}
+                  disabled={isConnecting}
                   className="w-full bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
                 >
-                  Confirmar Chave Pública
+                  {isConnecting ? 'Verificando...' : 'Assinar e Autenticar'}
                 </Button>
               </div>
+            </div>
+          )}
+
+          {connectionStatus === 'verifying' && (
+            <div className="text-center space-y-3">
+              <div className="animate-spin mx-auto h-8 w-8 border-2 border-theme-details border-t-transparent rounded-full"></div>
+              <p className="text-sm text-theme-surface-foreground">
+                Verificando assinatura...
+              </p>
             </div>
           )}
 
@@ -232,10 +281,13 @@ const Index = () => {
             <div className="text-center space-y-3">
               <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
               <p className="text-sm text-theme-surface-foreground">
-                Conectado com sucesso!
+                Autenticação bem-sucedida!
               </p>
               <p className="text-xs text-theme-surface-foreground/70 break-all">
-                {userAddress.slice(0, 8)}{userAddress.slice(-8)}
+                {userAddress.slice(0, 8)}...{userAddress.slice(-8)}
+              </p>
+              <p className="text-xs text-theme-surface-foreground/70">
+                Redirecionando...
               </p>
             </div>
           )}
@@ -247,7 +299,7 @@ const Index = () => {
                 {errorMessage}
               </p>
               <Button 
-                onClick={connectFreighter}
+                onClick={startAuthentication}
                 variant="outline"
                 className="w-full bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background"
               >
