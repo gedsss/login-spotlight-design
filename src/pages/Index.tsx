@@ -17,7 +17,7 @@ const Index = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Helper para evitar ficar carregando eternamente
-  const withTimeout = <T,>(promise: Promise<T>, ms = 10000, timeoutMessage = 'Tempo esgotado aguardando resposta do Freighter.'): Promise<T> => {
+  const withTimeout = <T,>(promise: Promise<T>, ms = 5000, timeoutMessage = 'Tempo esgotado aguardando resposta do Freighter.'): Promise<T> => {
     return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
       promise.then(
@@ -32,14 +32,14 @@ const Index = () => {
     try {
       const maybeGetPublicKey = (freighterApi as any).getPublicKey;
       if (typeof maybeGetPublicKey === 'function') {
-        const pk = await withTimeout<string>(maybeGetPublicKey(), 10000, 'Tempo esgotado aguardando resposta do Freighter.');
+        const pk = await withTimeout<string>(maybeGetPublicKey(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
         if (pk) return pk;
       }
     } catch (_e) {
       // Ignora e tenta fallback
     }
 
-    const addressResult = await withTimeout<any>((freighterApi as any).getAddress(), 10000, 'Tempo esgotado aguardando resposta do Freighter.');
+    const addressResult = await withTimeout<any>((freighterApi as any).getAddress(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
     if (addressResult?.address) return addressResult.address;
     throw new Error('Não foi possível obter a chave pública da carteira.');
   };
@@ -59,7 +59,7 @@ const Index = () => {
       const allowed = await isAllowed();
       if (!allowed) {
         // Solicitar acesso com timeout para evitar travar
-        const accessResult = await withTimeout(requestAccess(), 10000, 'Tempo esgotado aguardando permissão do Freighter.');
+        const accessResult = await withTimeout(requestAccess(), 5000, 'Tempo esgotado aguardando permissão do Freighter.');
         if (!accessResult) {
           throw new Error('Acesso negado pelo usuário.');
         }
