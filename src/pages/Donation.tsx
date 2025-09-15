@@ -85,13 +85,15 @@ const Donation = () => {
               </p>
               
               {/* Donation button */}
-              <Button 
-                size="lg" 
-                className="mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 px-8 text-lg"
-              >
-                <Heart className="mr-2 h-5 w-5" />
-                CLIQUE AQUI PARA FAZER SUA DOAÇÃO
-              </Button>
+              <Link to="/payment">
+                <Button 
+                  size="lg" 
+                  className="mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 px-8 text-lg"
+                >
+                  <Heart className="mr-2 h-5 w-5" />
+                  CLIQUE AQUI PARA FAZER SUA DOAÇÃO
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
