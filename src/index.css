@@ -10,25 +10,25 @@ All colors MUST be HSL.
   :root {
     /* Light mode - Golden background with white details */
     --background: 45 90% 65%;
-    --foreground: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 45 90% 65%;
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 45 90% 65%;
-    --popover-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
     --primary: 0 0% 100%;
-    --primary-foreground: 45 90% 65%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 100%;
-    --secondary-foreground: 45 90% 65%;
+    --secondary-foreground: 0 0% 0%;
 
     --muted: 0 0% 95%;
-    --muted-foreground: 45 90% 65%;
+    --muted-foreground: 0 0% 0%;
 
     --accent: 0 0% 100%;
-    --accent-foreground: 45 90% 65%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -43,7 +43,7 @@ All colors MUST be HSL.
     --theme-background: 45 90% 65%;
     --theme-details: 0 0% 100%;
     --theme-surface: 45 85% 70%;
-    --theme-surface-foreground: 0 0% 100%;
+    --theme-surface-foreground: 0 0% 0%;
     --login-box: 0 0% 0%;
     --login-box-foreground: 0 0% 100%;
 

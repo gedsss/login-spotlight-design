@@ -2,9 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate('/donation');
+  };
+
   return (
     <div className="relative flex h-screen w-full items-center justify-center bg-theme-background overflow-hidden">
       <ThemeToggle />
@@ -63,17 +69,12 @@ const Index = () => {
             />
           </div>
           
-          <Button className="w-full mt-6 bg-theme-details text-theme-background hover:bg-theme-details/80 font-bold py-3 transition-all duration-300">
+          <Button 
+            onClick={handleLogin}
+            className="w-full mt-6 bg-theme-details text-theme-background hover:bg-theme-details/80 font-bold py-3 transition-all duration-300"
+          >
             Entrar
           </Button>
-          
-          <div className="mt-4 text-center">
-            <Link to="/donation">
-              <Button variant="outline" className="bg-theme-surface border-theme-details text-theme-details hover:bg-theme-details hover:text-theme-surface">
-                Ver Projeto de Doação
-              </Button>
-            </Link>
-          </div>
         </div>
       </div>
     </div>
