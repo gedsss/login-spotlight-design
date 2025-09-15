@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Wallet, CheckCircle, AlertCircle } from "lucide-react";
+import { Wallet, CheckCircle, AlertCircle, Key } from "lucide-react";
 import freighterApi, { 
   isConnected, 
   isAllowed, 
@@ -12,8 +13,9 @@ import freighterApi, {
 const Index = () => {
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'verified' | 'connected' | 'error'>('idle');
   const [userAddress, setUserAddress] = useState<string>('');
+  const [publicKeyInput, setPublicKeyInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Helper para evitar ficar carregando eternamente
@@ -65,19 +67,8 @@ const Index = () => {
         }
       }
 
-      // Obter chave pública do usuário (com timeout e fallback)
-      const publicKey = await fetchPublicKey();
-      if (!publicKey) {
-        throw new Error('Não foi possível obter a chave pública da carteira.');
-      }
-
-      setUserAddress(publicKey);
-      setConnectionStatus('connected');
-      
-      // Aguardar um pouco antes de navegar
-      setTimeout(() => {
-        navigate('/donation');
-      }, 1500);
+      // Se chegou até aqui, as verificações foram bem-sucedidas
+      setConnectionStatus('verified');
       
     } catch (error: any) {
       console.error('Erro ao conectar com Freighter:', error);
@@ -86,6 +77,30 @@ const Index = () => {
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  const validateAndSubmitPublicKey = () => {
+    const trimmedKey = publicKeyInput.trim();
+    
+    // Validação básica de chave pública Stellar
+    if (!trimmedKey) {
+      setErrorMessage('Por favor, insira sua chave pública.');
+      return;
+    }
+    
+    if (trimmedKey.length !== 56 || !trimmedKey.startsWith('G')) {
+      setErrorMessage('Chave pública inválida. Deve começar com G e ter 56 caracteres.');
+      return;
+    }
+
+    setUserAddress(trimmedKey);
+    setConnectionStatus('connected');
+    setErrorMessage('');
+    
+    // Aguardar um pouco antes de navegar
+    setTimeout(() => {
+      navigate('/donation');
+    }, 1500);
   };
 
   return (
@@ -151,6 +166,42 @@ const Index = () => {
               <p className="text-sm text-theme-surface-foreground">
                 Conectando com Freighter...
               </p>
+            </div>
+          )}
+
+          {connectionStatus === 'verified' && (
+            <div className="text-center space-y-4">
+              <Key className="mx-auto h-12 w-12 text-theme-details" />
+              <div className="space-y-3">
+                <p className="text-sm text-theme-surface-foreground">
+                  Freighter verificado com sucesso!
+                </p>
+                <p className="text-xs text-theme-surface-foreground/70">
+                  Agora digite sua chave pública para continuar:
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <Input
+                  type="text"
+                  placeholder="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  value={publicKeyInput}
+                  onChange={(e) => {
+                    setPublicKeyInput(e.target.value);
+                    setErrorMessage(''); // Limpa erro ao digitar
+                  }}
+                  className="w-full text-xs"
+                />
+                {errorMessage && (
+                  <p className="text-xs text-red-500">{errorMessage}</p>
+                )}
+                <Button 
+                  onClick={validateAndSubmitPublicKey}
+                  className="w-full bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
+                >
+                  Confirmar Chave Pública
+                </Button>
+              </div>
             </div>
           )}
 
