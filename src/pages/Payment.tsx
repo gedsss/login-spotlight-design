@@ -82,48 +82,35 @@ const Payment = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="currency" className="text-theme-surface-foreground font-semibold">
-                    Moeda
+                  <Label className="text-theme-surface-foreground font-semibold">
+                    Exchange de Criptomoedas
                   </Label>
-                  <Select>
-                    <SelectTrigger className="bg-theme-background border-theme-details text-theme-surface-foreground">
-                      <SelectValue placeholder="Selecione a moeda" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BRL">Real Brasileiro (R$)</SelectItem>
-                      <SelectItem value="USD">Dólar Americano (US$)</SelectItem>
-                      <SelectItem value="EUR">Euro (€)</SelectItem>
-                      <SelectItem value="GBP">Libra Esterlina (£)</SelectItem>
-                      <SelectItem value="JPY">Iene Japonês (¥)</SelectItem>
-                      <SelectItem value="CHF">Franco Suíço (CHF)</SelectItem>
-                      <SelectItem value="CAD">Dólar Canadense (C$)</SelectItem>
-                      <SelectItem value="AUD">Dólar Australiano (A$)</SelectItem>
-                      <SelectItem value="CNY">Yuan Chinês (¥)</SelectItem>
-                      <SelectItem value="INR">Rupia Indiana (₹)</SelectItem>
-                      <SelectItem value="KRW">Won Sul-Coreano (₩)</SelectItem>
-                      <SelectItem value="MXN">Peso Mexicano (MX$)</SelectItem>
-                      <SelectItem value="ARS">Peso Argentino (AR$)</SelectItem>
-                      <SelectItem value="CLP">Peso Chileno (CL$)</SelectItem>
-                      <SelectItem value="COP">Peso Colombiano (CO$)</SelectItem>
-                      <SelectItem value="PEN">Sol Peruano (S/)</SelectItem>
-                      <SelectItem value="UYU">Peso Uruguaio (UY$)</SelectItem>
-                      <SelectItem value="RUB">Rublo Russo (₽)</SelectItem>
-                      <SelectItem value="ZAR">Rand Sul-Africano (R)</SelectItem>
-                      <SelectItem value="TRY">Lira Turca (₺)</SelectItem>
-                      <SelectItem value="SEK">Coroa Sueca (kr)</SelectItem>
-                      <SelectItem value="NOK">Coroa Norueguesa (kr)</SelectItem>
-                      <SelectItem value="DKK">Coroa Dinamarquesa (kr)</SelectItem>
-                      <SelectItem value="PLN">Zloty Polonês (zł)</SelectItem>
-                      <SelectItem value="HUF">Florim Húngaro (Ft)</SelectItem>
-                      <SelectItem value="CZK">Coroa Tcheca (Kč)</SelectItem>
-                      <SelectItem value="ILS">Shekel Israelense (₪)</SelectItem>
-                      <SelectItem value="AED">Dirham dos Emirados (AED)</SelectItem>
-                      <SelectItem value="SAR">Riyal Saudita (SR)</SelectItem>
-                      <SelectItem value="SGD">Dólar de Singapura (S$)</SelectItem>
-                      <SelectItem value="HKD">Dólar de Hong Kong (HK$)</SelectItem>
-                      <SelectItem value="NZD">Dólar Neozelandês (NZ$)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background h-12"
+                    >
+                      Binance
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background h-12"
+                    >
+                      Coinbase
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background h-12"
+                    >
+                      OKX
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background h-12"
+                    >
+                      EARX
+                    </Button>
+                  </div>
                 </div>
                 
                 <Link to="/payment-methods" className="mt-auto">
