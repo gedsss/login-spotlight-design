@@ -31,12 +31,19 @@ const Index = () => {
       const allowed = await isAllowed();
       if (!allowed) {
         // Solicitar acesso
-        await requestAccess();
+        const access = await requestAccess();
+        if (!access) {
+          throw new Error('Acesso negado pelo usuário.');
+        }
       }
 
       // Obter chave pública do usuário
-      const { address } = await freighterApi.getAddress();
-      setUserAddress(address);
+      const result = await freighterApi.getAddress();
+      if (!result || !result.address) {
+        throw new Error('Não foi possível obter o endereço da carteira.');
+      }
+      
+      setUserAddress(result.address);
       setConnectionStatus('connected');
       
       // Aguardar um pouco antes de navegar
