@@ -3,12 +3,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Wallet, CheckCircle, AlertCircle } from "lucide-react";
-import { 
+import freighterApi, { 
   isConnected, 
   isAllowed, 
   requestAccess
 } from '@stellar/freighter-api';
-import freighterApi from '@stellar/freighter-api';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,6 +16,33 @@ const Index = () => {
   const [userAddress, setUserAddress] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // Helper para evitar ficar carregando eternamente
+  const withTimeout = <T,>(promise: Promise<T>, ms = 15000, timeoutMessage = 'Tempo esgotado aguardando resposta do Freighter.'): Promise<T> => {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+      promise.then(
+        (val) => { clearTimeout(timer); resolve(val); },
+        (err) => { clearTimeout(timer); reject(err); }
+      );
+    });
+  };
+
+  // Tenta usar getPublicKey; se indisponível, faz fallback para getAddress
+  const fetchPublicKey = async (): Promise<string> => {
+    try {
+      const maybeGetPublicKey = (freighterApi as any).getPublicKey;
+      if (typeof maybeGetPublicKey === 'function') {
+        const pk = await withTimeout<string>(maybeGetPublicKey(), 15000, 'Tempo esgotado aguardando resposta do Freighter.');
+        if (pk) return pk;
+      }
+    } catch (_e) {
+      // Ignora e tenta fallback
+    }
+
+    const addressResult = await withTimeout<any>((freighterApi as any).getAddress(), 15000, 'Tempo esgotado aguardando resposta do Freighter.');
+    if (addressResult?.address) return addressResult.address;
+    throw new Error('Não foi possível obter a chave pública da carteira.');
+  };
   const connectFreighter = async () => {
     setIsConnecting(true);
     setConnectionStatus('connecting');
@@ -32,20 +58,20 @@ const Index = () => {
       // Verificar se já temos permissão
       const allowed = await isAllowed();
       if (!allowed) {
-        // Solicitar acesso
-        const accessResult = await requestAccess();
+        // Solicitar acesso com timeout para evitar travar
+        const accessResult = await withTimeout(requestAccess(), 15000, 'Tempo esgotado aguardando permissão do Freighter.');
         if (!accessResult) {
           throw new Error('Acesso negado pelo usuário.');
         }
       }
 
-      // Obter chave pública do usuário
-      const addressResult = await freighterApi.getAddress();
-      if (!addressResult || !addressResult.address) {
+      // Obter chave pública do usuário (com timeout e fallback)
+      const publicKey = await fetchPublicKey();
+      if (!publicKey) {
         throw new Error('Não foi possível obter a chave pública da carteira.');
       }
 
-      setUserAddress(addressResult.address);
+      setUserAddress(publicKey);
       setConnectionStatus('connected');
       
       // Aguardar um pouco antes de navegar
