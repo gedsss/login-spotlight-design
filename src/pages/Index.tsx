@@ -45,12 +45,12 @@ const Index = () => {
       </div>
 
       {/* Login box */}
-      <div className="relative z-10 bg-login text-login-foreground p-8 rounded-lg shadow-2xl w-96 border-2 border-theme-details/20">
-        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide">ENTRE COM SUA CONTA!</h1>
+      <div className="relative z-10 bg-theme-surface text-theme-surface-foreground p-8 rounded-lg shadow-2xl w-96 border-2 border-theme-details/20">
+        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-theme-surface-foreground">ENTRE COM SUA CONTA!</h1>
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-login-foreground font-semibold">Email</Label>
+            <Label htmlFor="email" className="text-theme-surface-foreground font-semibold">Email</Label>
             <Input 
               id="email" 
               type="email" 
@@ -60,7 +60,7 @@ const Index = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-login-foreground font-semibold">Senha</Label>
+            <Label htmlFor="password" className="text-theme-surface-foreground font-semibold">Senha</Label>
             <Input 
               id="password" 
               type="password" 
