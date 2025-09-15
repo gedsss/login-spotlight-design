@@ -3,24 +3,83 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Donation = () => {
-  // Mock data for donors
-  const recentDonors = [
-    { name: "João Silva", amount: "R$ 100,00", date: "Hoje" },
-    { name: "Maria Santos", amount: "R$ 50,00", date: "Ontem" },
-    { name: "Pedro Costa", amount: "R$ 200,00", date: "2 dias atrás" },
-    { name: "Ana Lima", amount: "R$ 75,00", date: "3 dias atrás" },
-    { name: "Carlos Pereira", amount: "R$ 150,00", date: "1 semana atrás" },
-  ];
+  const [recentDonors, setRecentDonors] = useState<any[]>([]);
+  const [topDonors, setTopDonors] = useState<any[]>([]);
+  
+  useEffect(() => {
+    fetchDonations();
+  }, []);
 
-  const topDonors = [
-    { name: "Pedro Costa", amount: "R$ 1.500,00", position: 1 },
-    { name: "Maria Fernanda", amount: "R$ 1.200,00", position: 2 },
-    { name: "João Silva", amount: "R$ 800,00", position: 3 },
-    { name: "Ana Carolina", amount: "R$ 650,00", position: 4 },
-    { name: "Roberto Santos", amount: "R$ 500,00", position: 5 },
-  ];
+  const fetchDonations = async () => {
+    try {
+      // Fetch recent donors (last 5 donations)
+      const { data: recentData, error: recentError } = await supabase
+        .from('donations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (recentError) throw recentError;
+
+      // Fetch top donors (grouped by name, summed amount)
+      const { data: topData, error: topError } = await supabase
+        .from('donations')
+        .select('donor_name, amount')
+        .order('amount', { ascending: false });
+
+      if (topError) throw topError;
+
+      // Process recent donors
+      const formattedRecent = recentData?.map(donor => ({
+        name: donor.donor_name,
+        amount: `${donor.amount} XLM`,
+        date: formatDate(donor.created_at)
+      })) || [];
+
+      // Process and group top donors
+      const donorTotals = (topData || []).reduce((acc: any, donation) => {
+        if (acc[donation.donor_name]) {
+          acc[donation.donor_name] += Number(donation.amount);
+        } else {
+          acc[donation.donor_name] = Number(donation.amount);
+        }
+        return acc;
+      }, {});
+
+      const sortedDonors = Object.entries(donorTotals)
+        .sort(([,a]: any, [,b]: any) => b - a)
+        .slice(0, 5)
+        .map(([name, amount]: any, index) => ({
+          name,
+          amount: `${amount} XLM`,
+          position: index + 1
+        }));
+
+      setRecentDonors(formattedRecent);
+      setTopDonors(sortedDonors);
+    } catch (error) {
+      console.error('Erro ao buscar doações:', error);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return 'Hoje';
+    } else if (diffInHours < 48) {
+      return 'Ontem';
+    } else {
+      const days = Math.floor(diffInHours / 24);
+      return `${days} ${days === 1 ? 'dia' : 'dias'} atrás`;
+    }
+  };
 
   return (
     <div className="relative min-h-screen w-full bg-theme-background overflow-hidden">

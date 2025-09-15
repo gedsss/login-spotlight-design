@@ -6,8 +6,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Send, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Payment = () => {
+  const [donorName, setDonorName] = useState('');
   const [amount, setAmount] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -15,7 +17,7 @@ const Payment = () => {
   const [transactionHash, setTransactionHash] = useState('');
 
   const handleTransaction = async () => {
-    if (!amount || !destinationAddress) {
+    if (!donorName || !amount || !destinationAddress) {
       alert('Por favor, preencha todos os campos');
       return;
     }
@@ -63,6 +65,19 @@ const Payment = () => {
 
       // Enviar transação para a rede
       const transactionResult = await server.submitTransaction(signedTransaction);
+      
+      // Salvar doação no banco de dados
+      const { error: dbError } = await supabase
+        .from('donations')
+        .insert({
+          donor_name: donorName,
+          amount: parseFloat(amount),
+          transaction_hash: transactionResult.hash
+        });
+
+      if (dbError) {
+        console.error('Erro ao salvar doação no banco:', dbError);
+      }
       
       setTransactionHash(transactionResult.hash);
       setTransactionStatus('success');
@@ -136,6 +151,20 @@ const Payment = () => {
               {transactionStatus === 'idle' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
+                    <Label htmlFor="donorName" className="text-theme-surface-foreground font-semibold">
+                      Seu Nome
+                    </Label>
+                    <Input
+                      id="donorName"
+                      type="text"
+                      placeholder="Digite seu nome"
+                      value={donorName}
+                      onChange={(e) => setDonorName(e.target.value)}
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
                     <Label htmlFor="amount" className="text-theme-surface-foreground font-semibold">
                       Quantia (XLM)
                     </Label>
@@ -167,7 +196,7 @@ const Payment = () => {
                   
                   <Button 
                     onClick={handleTransaction}
-                    disabled={isProcessing || !amount || !destinationAddress}
+                    disabled={isProcessing || !donorName || !amount || !destinationAddress}
                     size="lg" 
                     className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
                   >
@@ -201,6 +230,7 @@ const Payment = () => {
                   <Button 
                     onClick={() => {
                       setTransactionStatus('idle');
+                      setDonorName('');
                       setAmount('');
                       setDestinationAddress('');
                       setTransactionHash('');
