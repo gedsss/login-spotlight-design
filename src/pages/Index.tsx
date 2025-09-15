@@ -125,7 +125,7 @@ const Index = () => {
                 Conectado com sucesso!
               </p>
               <p className="text-xs text-theme-surface-foreground/70 break-all">
-                {userAddress.slice(0, 8)}...{userAddress.slice(-8)}
+                {userAddress.slice(0, 8)}{userAddress.slice(-8)}
               </p>
             </div>
           )}
