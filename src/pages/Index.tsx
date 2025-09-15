@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import * as StellarSdk from 'stellar-sdk';
 import { Wallet, CheckCircle, AlertCircle, Key } from "lucide-react";
 import freighterApi, { 
   isConnected, 
@@ -82,15 +83,10 @@ const Index = () => {
   const validateAndSubmitPublicKey = () => {
     const trimmedKey = publicKeyInput.trim();
     
-    // Validação básica de chave pública Stellar
-    if (!trimmedKey) {
-      setErrorMessage('Por favor, insira sua chave pública.');
-      return;
-    }
-    
-    if (trimmedKey.length !== 56 || !trimmedKey.startsWith('G')) {
-      setErrorMessage('Chave pública inválida. Deve começar com G e ter 56 caracteres.');
-      return;
+    // Use the official Stellar SDK for validation
+    if (!StellarSdk.StrKey.isValidEd25519PublicKey(trimmedKey)) {
+        setErrorMessage('Chave pública inválida. Por favor, verifique e tente novamente.');
+        return;
     }
 
     setUserAddress(trimmedKey);
