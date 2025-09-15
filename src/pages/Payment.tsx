@@ -53,14 +53,14 @@ const Payment = () => {
 
         {/* Main content */}
         <div className="max-w-md mx-auto">
-          <Card className="bg-theme-surface border-theme-details min-h-[500px]">
+          <Card className="bg-theme-surface border-theme-details min-h-[400px]">
             <CardHeader className="pb-4">
               <CardTitle className="text-2xl font-bold text-center text-theme-surface-foreground flex items-center justify-center">
                 <CreditCard className="mr-2 h-6 w-6" />
                 Fazer Doação
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-8 px-8">
+            <CardContent className="space-y-6 px-8 pb-8">
               <p className="text-center text-theme-surface-foreground text-sm">
                 Sua contribuição fará a diferença na vida de muitas pessoas. Obrigado por sua generosidade!
               </p>
@@ -97,10 +97,10 @@ const Payment = () => {
                   </Select>
                 </div>
                 
-                <Link to="/payment-methods">
+                <Link to="/payment-methods" className="mt-auto">
                   <Button 
                     size="lg" 
-                    className="w-full mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
+                    className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
                   >
                     <CreditCard className="mr-2 h-5 w-5" />
                     PROSSEGUIR PARA O PAGAMENTO
