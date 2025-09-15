@@ -71,7 +71,7 @@ const Index = () => {
           
           <Button 
             onClick={handleLogin}
-            className="w-full mt-6 bg-theme-details text-theme-background hover:bg-theme-details/80 font-bold py-3 transition-all duration-300"
+            className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
           >
             Entrar
           </Button>

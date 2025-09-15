@@ -59,7 +59,7 @@ const Donation = () => {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Back button */}
         <Link to="/">
-          <Button variant="outline" className="mb-6 bg-theme-surface border-theme-details text-theme-details hover:bg-theme-details hover:text-theme-surface">
+          <Button variant="outline" className="mb-6 bg-transparent border-theme-details text-theme-details hover:bg-theme-details hover:text-theme-background">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Button>
@@ -87,7 +87,7 @@ const Donation = () => {
               {/* Donation button */}
               <Button 
                 size="lg" 
-                className="mt-8 bg-theme-details text-theme-background hover:bg-theme-details/80 font-bold py-4 px-8 text-lg"
+                className="mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 px-8 text-lg"
               >
                 <Heart className="mr-2 h-5 w-5" />
                 CLIQUE AQUI PARA FAZER SUA DOAÇÃO
