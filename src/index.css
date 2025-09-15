@@ -45,6 +45,13 @@ All colors MUST be HSL.
     --login-box: 0 0% 0%;
     --login-box-foreground: 0 0% 100%;
 
+    /* Theme variants - light mode */
+    --theme-bg: 45 90% 65%;
+    --theme-details: 0 0% 100%;
+    --theme-text: 0 0% 0%;
+    --theme-box: 0 0% 100%;
+    --theme-box-foreground: 0 0% 0%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -97,6 +104,13 @@ All colors MUST be HSL.
     --dark-bg: 220 13% 18%;
     --login-box: 0 0% 0%;
     --login-box-foreground: 0 0% 100%;
+    
+    /* Theme variants */
+    --theme-bg: 220 13% 18%;
+    --theme-details: 45 90% 65%;
+    --theme-text: 0 0% 100%;
+    --theme-box: 0 0% 0%;
+    --theme-box-foreground: 0 0% 100%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
