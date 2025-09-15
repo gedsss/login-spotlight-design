@@ -52,60 +52,60 @@ const Payment = () => {
         </Link>
 
         {/* Main content */}
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-theme-surface border-theme-details">
-            <CardHeader>
+        <div className="max-w-md mx-auto">
+          <Card className="bg-theme-surface border-theme-details min-h-[500px]">
+            <CardHeader className="pb-4">
               <CardTitle className="text-2xl font-bold text-center text-theme-surface-foreground flex items-center justify-center">
                 <CreditCard className="mr-2 h-6 w-6" />
                 Fazer Doação
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <p className="text-center text-theme-surface-foreground">
+            <CardContent className="space-y-8 px-8">
+              <p className="text-center text-theme-surface-foreground text-sm">
                 Sua contribuição fará a diferença na vida de muitas pessoas. Obrigado por sua generosidade!
               </p>
               
               {/* Payment form */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount" className="text-theme-surface-foreground font-semibold">
-                      Quantia
-                    </Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      placeholder="0,00"
-                      min="1"
-                      step="0.01"
-                      className="bg-theme-background border-theme-details text-theme-surface-foreground"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="currency" className="text-theme-surface-foreground font-semibold">
-                      Moeda
-                    </Label>
-                    <Select>
-                      <SelectTrigger className="bg-theme-background border-theme-details text-theme-surface-foreground">
-                        <SelectValue placeholder="Selecione a moeda" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="BRL">Real Brasileiro (R$)</SelectItem>
-                        <SelectItem value="USD">Dólar Americano (US$)</SelectItem>
-                        <SelectItem value="EUR">Euro (€)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="amount" className="text-theme-surface-foreground font-semibold">
+                    Quantia
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0,00"
+                    min="1"
+                    step="0.01"
+                    className="bg-theme-background border-theme-details text-theme-surface-foreground"
+                  />
                 </div>
                 
-                <Button 
-                  size="lg" 
-                  className="w-full mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
-                >
-                  <CreditCard className="mr-2 h-5 w-5" />
-                  PROSSEGUIR PARA O PAGAMENTO
-                </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="currency" className="text-theme-surface-foreground font-semibold">
+                    Moeda
+                  </Label>
+                  <Select>
+                    <SelectTrigger className="bg-theme-background border-theme-details text-theme-surface-foreground">
+                      <SelectValue placeholder="Selecione a moeda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BRL">Real Brasileiro (R$)</SelectItem>
+                      <SelectItem value="USD">Dólar Americano (US$)</SelectItem>
+                      <SelectItem value="EUR">Euro (€)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Link to="/payment-methods">
+                  <Button 
+                    size="lg" 
+                    className="w-full mt-8 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
+                  >
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    PROSSEGUIR PARA O PAGAMENTO
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
