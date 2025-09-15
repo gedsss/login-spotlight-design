@@ -1,14 +1,52 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Wallet, CheckCircle, AlertCircle } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+  const [userAddress, setUserAddress] = useState<string>('');
 
-  const handleLogin = () => {
-    navigate('/donation');
+  const connectFreighter = async () => {
+    setIsConnecting(true);
+    setConnectionStatus('connecting');
+    
+    try {
+      // @ts-ignore
+      const { isConnected, isAllowed, requestAccess, getPublicKey } = await import('@stellar/freighter-api');
+      
+      // Verificar se Freighter está instalado
+      const connected = await isConnected();
+      if (!connected) {
+        throw new Error('Freighter não está instalado. Por favor, instale a extensão Freighter.');
+      }
+
+      // Verificar se já temos permissão
+      const allowed = await isAllowed();
+      if (!allowed) {
+        // Solicitar acesso
+        await requestAccess();
+      }
+
+      // Obter chave pública do usuário
+      const publicKey = await getPublicKey();
+      setUserAddress(publicKey);
+      setConnectionStatus('connected');
+      
+      // Aguardar um pouco antes de navegar
+      setTimeout(() => {
+        navigate('/donation');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Erro ao conectar com Freighter:', error);
+      setConnectionStatus('error');
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -44,37 +82,66 @@ const Index = () => {
         </svg>
       </div>
 
-      {/* Login box */}
+      {/* Freighter Connection Box */}
       <div className="relative z-10 bg-theme-surface text-theme-surface-foreground p-8 rounded-lg shadow-2xl w-96 border-2 border-theme-details/20">
-        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-theme-surface-foreground">ENTRE COM SUA CONTA!</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-theme-surface-foreground">CONECTE SUA CARTEIRA!</h1>
         
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-theme-surface-foreground font-semibold">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="Digite seu email"
-              className="bg-white text-black placeholder:text-black border-theme-details focus:border-theme-details focus:ring-theme-details"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-theme-surface-foreground font-semibold">Senha</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              placeholder="Digite sua senha"
-              className="bg-white text-black placeholder:text-black border-theme-details focus:border-theme-details focus:ring-theme-details"
-            />
-          </div>
-          
-          <Button 
-            onClick={handleLogin}
-            className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
-          >
-            Entrar
-          </Button>
+        <div className="space-y-6">
+          {connectionStatus === 'idle' && (
+            <>
+              <div className="text-center space-y-3">
+                <Wallet className="mx-auto h-12 w-12 text-theme-details" />
+                <p className="text-sm text-theme-surface-foreground">
+                  Conecte sua carteira Freighter para fazer doações na rede Stellar
+                </p>
+              </div>
+              
+              <Button 
+                onClick={connectFreighter}
+                disabled={isConnecting}
+                className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-3 transition-all duration-300"
+              >
+                {isConnecting ? 'Conectando...' : 'Conectar Freighter'}
+              </Button>
+            </>
+          )}
+
+          {connectionStatus === 'connecting' && (
+            <div className="text-center space-y-3">
+              <div className="animate-spin mx-auto h-8 w-8 border-2 border-theme-details border-t-transparent rounded-full"></div>
+              <p className="text-sm text-theme-surface-foreground">
+                Conectando com Freighter...
+              </p>
+            </div>
+          )}
+
+          {connectionStatus === 'connected' && (
+            <div className="text-center space-y-3">
+              <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
+              <p className="text-sm text-theme-surface-foreground">
+                Conectado com sucesso!
+              </p>
+              <p className="text-xs text-theme-surface-foreground/70 break-all">
+                {userAddress.slice(0, 8)}...{userAddress.slice(-8)}
+              </p>
+            </div>
+          )}
+
+          {connectionStatus === 'error' && (
+            <div className="text-center space-y-3">
+              <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
+              <p className="text-sm text-red-500">
+                Erro ao conectar com Freighter
+              </p>
+              <Button 
+                onClick={connectFreighter}
+                variant="outline"
+                className="w-full bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background"
+              >
+                Tentar Novamente
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
