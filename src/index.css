@@ -38,9 +38,11 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Login box colors */
-    --login-background: 45 100% 51%;
-    --login-foreground: 0 0% 0%;
+    /* Golden theme colors inspired by Meridian design */
+    --golden-background: 45 90% 65%;
+    --golden-dark: 45 85% 45%;
+    --login-box: 0 0% 0%;
+    --login-box-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -88,9 +90,11 @@ All colors MUST be HSL.
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
     
-    /* Login box colors - dark mode */
-    --login-background: 45 100% 51%;
-    --login-foreground: 0 0% 0%;
+    /* Golden theme colors - dark mode */
+    --golden-background: 45 90% 65%;
+    --golden-dark: 45 85% 45%;
+    --login-box: 0 0% 0%;
+    --login-box-foreground: 0 0% 100%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

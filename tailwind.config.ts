@@ -48,8 +48,12 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         login: {
-          DEFAULT: "hsl(var(--login-background))",
-          foreground: "hsl(var(--login-foreground))",
+          DEFAULT: "hsl(var(--login-box))",
+          foreground: "hsl(var(--login-box-foreground))",
+        },
+        golden: {
+          DEFAULT: "hsl(var(--golden-background))",
+          dark: "hsl(var(--golden-dark))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
