@@ -27,13 +27,21 @@ const Index = () => {
     });
   };
 
-  // Obtém a chave pública usando a API oficial do Freighter
+  // Tenta usar getPublicKey; se indisponível, faz fallback para getAddress
   const fetchPublicKey = async (): Promise<string> => {
-    const addressResult = await withTimeout<any>(freighterApi.getAddress(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
-    if (!addressResult || !addressResult.address) {
-      throw new Error('Não foi possível obter a chave pública da carteira.');
+    try {
+      const maybeGetPublicKey = (freighterApi as any).getPublicKey;
+      if (typeof maybeGetPublicKey === 'function') {
+        const pk = await withTimeout<string>(maybeGetPublicKey(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
+        if (pk) return pk;
+      }
+    } catch (_e) {
+      // Ignora e tenta fallback
     }
-    return addressResult.address;
+
+    const addressResult = await withTimeout<any>((freighterApi as any).getAddress(), 5000, 'Tempo esgotado aguardando resposta do Freighter.');
+    if (addressResult?.address) return addressResult.address;
+    throw new Error('Não foi possível obter a chave pública da carteira.');
   };
   const connectFreighter = async () => {
     setIsConnecting(true);
