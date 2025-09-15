@@ -51,31 +51,58 @@ const Index = () => {
     setConnectionStatus('connecting');
     setErrorMessage('');
     
+    // Timeout de 5 segundos para todo o processo
+    const connectionTimeout = setTimeout(() => {
+      setIsConnecting(false);
+      setConnectionStatus('error');
+      setErrorMessage('Tempo esgotado. A conexão com Freighter demorou mais de 5 segundos.');
+    }, 5000);
+    
     try {
-      // Verificar se Freighter está instalado
-      const connected = await isConnected();
+      // Verificar se Freighter está instalado (com timeout)
+      const connected = await Promise.race([
+        isConnected(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Freighter não respondeu')), 3000)
+        )
+      ]);
+      
       if (!connected) {
         throw new Error('Freighter não está instalado. Por favor, instale a extensão Freighter.');
       }
 
-      // Verificar se já temos permissão
-      const allowed = await isAllowed();
+      // Verificar se já temos permissão (com timeout)  
+      const allowed = await Promise.race([
+        isAllowed(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Verificação de permissão falhou')), 2000)
+        )
+      ]);
+      
       if (!allowed) {
-        // Solicitar acesso com timeout para evitar travar
-        const accessResult = await withTimeout(requestAccess(), 5000, 'Tempo esgotado aguardando permissão do Freighter.');
+        // Solicitar acesso com timeout
+        const accessResult = await Promise.race([
+          requestAccess(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout: Usuário demorou para responder')), 5000)
+          )
+        ]);
+        
         if (!accessResult) {
           throw new Error('Acesso negado pelo usuário.');
         }
       }
 
-      // Se chegou até aqui, as verificações foram bem-sucedidas
+      // Limpar timeout e marcar como verificado
+      clearTimeout(connectionTimeout);
       setConnectionStatus('verified');
+      setIsConnecting(false);
       
     } catch (error: any) {
+      clearTimeout(connectionTimeout);
       console.error('Erro ao conectar com Freighter:', error);
       setConnectionStatus('error');
       setErrorMessage(error.message || 'Erro desconhecido ao conectar com Freighter');
-    } finally {
       setIsConnecting(false);
     }
   };
