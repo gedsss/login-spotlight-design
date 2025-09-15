@@ -9,12 +9,13 @@ const Index = () => {
     <div className="relative flex h-screen w-full items-center justify-center bg-theme-background overflow-hidden">
       <ThemeToggle />
       {/* Geometric background pattern */}
-      <div className="absolute inset-0 opacity-40">
+      <div className="absolute inset-0 opacity-60 overflow-hidden">
         <svg
-          className="w-full h-full"
+          className="w-full h-full min-h-screen"
           viewBox="0 0 1920 1080"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
         >
           {/* Grid pattern */}
           <defs>
@@ -48,7 +49,7 @@ const Index = () => {
               id="email" 
               type="email" 
               placeholder="Digite seu email"
-              className="bg-theme-details text-theme-background border-theme-details focus:border-theme-details focus:ring-theme-details"
+              className="bg-white text-black placeholder:text-black border-theme-details focus:border-theme-details focus:ring-theme-details"
             />
           </div>
           
@@ -58,7 +59,7 @@ const Index = () => {
               id="password" 
               type="password" 
               placeholder="Digite sua senha"
-              className="bg-theme-details text-theme-background border-theme-details focus:border-theme-details focus:ring-theme-details"
+              className="bg-white text-black placeholder:text-black border-theme-details focus:border-theme-details focus:ring-theme-details"
             />
           </div>
           

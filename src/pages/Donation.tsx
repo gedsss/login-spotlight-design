@@ -27,12 +27,13 @@ const Donation = () => {
       <ThemeToggle />
       
       {/* Geometric background pattern */}
-      <div className="absolute inset-0 opacity-40">
+      <div className="absolute inset-0 opacity-60 overflow-hidden">
         <svg
-          className="w-full h-full"
+          className="w-full h-full min-h-screen"
           viewBox="0 0 1920 1080"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
         >
           {/* Grid pattern */}
           <defs>
