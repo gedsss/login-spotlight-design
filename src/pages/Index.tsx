@@ -3,6 +3,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Wallet, CheckCircle, AlertCircle } from "lucide-react";
+import { 
+  isConnected, 
+  isAllowed, 
+  requestAccess 
+} from '@stellar/freighter-api';
+import freighterApi from '@stellar/freighter-api';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -15,9 +21,6 @@ const Index = () => {
     setConnectionStatus('connecting');
     
     try {
-      // @ts-ignore
-      const { isConnected, isAllowed, requestAccess, getPublicKey } = await import('@stellar/freighter-api');
-      
       // Verificar se Freighter está instalado
       const connected = await isConnected();
       if (!connected) {
@@ -32,8 +35,8 @@ const Index = () => {
       }
 
       // Obter chave pública do usuário
-      const publicKey = await getPublicKey();
-      setUserAddress(publicKey);
+      const { address } = await freighterApi.getAddress();
+      setUserAddress(address);
       setConnectionStatus('connected');
       
       // Aguardar um pouco antes de navegar
