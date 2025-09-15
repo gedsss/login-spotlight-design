@@ -8,41 +8,43 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light mode - Golden background with white details */
+    --background: 45 90% 65%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 45 90% 65%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 45 90% 65%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 45 90% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 45 90% 65%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 45 90% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 45 90% 65%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 100%;
 
     --radius: 0.5rem;
 
-    /* Golden theme colors inspired by Meridian design */
-    --golden-background: 45 90% 65%;
-    --golden-dark: 45 85% 45%;
-    --dark-bg: 220 13% 18%;
-    --login-box: 0 0% 0%;
+    /* Theme colors - light mode */
+    --theme-background: 45 90% 65%;
+    --theme-details: 0 0% 100%;
+    --theme-surface: 45 85% 70%;
+    --theme-surface-foreground: 0 0% 100%;
+    --login-box: 45 85% 70%;
     --login-box-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
@@ -63,40 +65,42 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode - Dark background with yellow details */
+    --background: 220 13% 18%;
+    --foreground: 45 90% 65%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 13% 18%;
+    --card-foreground: 45 90% 65%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 13% 18%;
+    --popover-foreground: 45 90% 65%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 45 90% 65%;
+    --primary-foreground: 220 13% 18%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 13% 25%;
+    --secondary-foreground: 45 90% 65%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 13% 25%;
+    --muted-foreground: 45 70% 55%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 13% 25%;
+    --accent-foreground: 45 90% 65%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 45 90% 65%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 45 90% 65%;
+    --input: 220 13% 25%;
+    --ring: 45 90% 65%;
     
-    /* Golden theme colors - dark mode */
-    --golden-background: 45 90% 65%;
-    --golden-dark: 45 85% 45%;
-    --dark-bg: 220 13% 18%;
+    /* Theme colors - dark mode */
+    --theme-background: 220 13% 18%;
+    --theme-details: 45 90% 65%;
+    --theme-surface: 0 0% 0%;
+    --theme-surface-foreground: 45 90% 65%;
     --login-box: 0 0% 0%;
-    --login-box-foreground: 0 0% 100%;
+    --login-box-foreground: 45 90% 65%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

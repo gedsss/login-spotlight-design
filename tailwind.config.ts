@@ -51,11 +51,10 @@ export default {
           DEFAULT: "hsl(var(--login-box))",
           foreground: "hsl(var(--login-box-foreground))",
         },
-        golden: {
-          DEFAULT: "hsl(var(--golden-background))",
-          dark: "hsl(var(--golden-dark))",
-        },
-        "dark-bg": "hsl(var(--dark-bg))",
+        "theme-background": "hsl(var(--theme-background))",
+        "theme-details": "hsl(var(--theme-details))",
+        "theme-surface": "hsl(var(--theme-surface))",
+        "theme-surface-foreground": "hsl(var(--theme-surface-foreground))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
