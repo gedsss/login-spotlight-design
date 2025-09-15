@@ -6,7 +6,7 @@ import { Wallet, CheckCircle, AlertCircle } from "lucide-react";
 import { 
   isConnected, 
   isAllowed, 
-  requestAccess 
+  requestAccess
 } from '@stellar/freighter-api';
 import freighterApi from '@stellar/freighter-api';
 
@@ -15,10 +15,12 @@ const Index = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [userAddress, setUserAddress] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const connectFreighter = async () => {
     setIsConnecting(true);
     setConnectionStatus('connecting');
+    setErrorMessage('');
     
     try {
       // Verificar se Freighter está instalado
@@ -31,12 +33,19 @@ const Index = () => {
       const allowed = await isAllowed();
       if (!allowed) {
         // Solicitar acesso
-        await requestAccess();
+        const accessResult = await requestAccess();
+        if (!accessResult) {
+          throw new Error('Acesso negado pelo usuário.');
+        }
       }
 
       // Obter chave pública do usuário
-      const { address } = await freighterApi.getAddress();
-      setUserAddress(address);
+      const addressResult = await freighterApi.getAddress();
+      if (!addressResult || !addressResult.address) {
+        throw new Error('Não foi possível obter a chave pública da carteira.');
+      }
+
+      setUserAddress(addressResult.address);
       setConnectionStatus('connected');
       
       // Aguardar um pouco antes de navegar
@@ -44,9 +53,10 @@ const Index = () => {
         navigate('/donation');
       }, 1500);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao conectar com Freighter:', error);
       setConnectionStatus('error');
+      setErrorMessage(error.message || 'Erro desconhecido ao conectar com Freighter');
     } finally {
       setIsConnecting(false);
     }
@@ -133,8 +143,8 @@ const Index = () => {
           {connectionStatus === 'error' && (
             <div className="text-center space-y-3">
               <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
-              <p className="text-sm text-red-500">
-                Erro ao conectar com Freighter
+              <p className="text-sm text-red-500 mb-2">
+                {errorMessage}
               </p>
               <Button 
                 onClick={connectFreighter}
