@@ -61,13 +61,13 @@ const Payment = () => {
       // 4. Enviar a transação para a rede Stellar
       const result = await server.submitTransaction(transaction);
       
-      // Salvar doação no banco de dados com user_id
+      // Salvar doação no banco de dados
       const { error: dbError } = await supabase
         .from('donations')
         .insert({
+          donor_name: donorName,
           amount: parseFloat(amount),
-          transaction_hash: result.hash,
-          user_id: user?.id // Link to authenticated user
+          transaction_hash: result.hash
         });
 
       if (dbError) {

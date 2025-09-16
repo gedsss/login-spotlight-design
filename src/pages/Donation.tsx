@@ -2,70 +2,51 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileButton } from "@/components/ProfileButton";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Trophy, Heart, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Trophy, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Donation = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [recentDonors, setRecentDonors] = useState<any[]>([]);
   const [topDonors, setTopDonors] = useState<any[]>([]);
-
-  // Redirect to auth if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
   
   useEffect(() => {
-    if (user) {
-      fetchDonations();
-    }
-  }, [user]);
+    fetchDonations();
+  }, []);
 
   const fetchDonations = async () => {
     try {
-      // Fetch recent donors (last 5 donations) - join with profiles to get donor names
+      // Fetch recent donors (last 5 donations)
       const { data: recentData, error: recentError } = await supabase
         .from('donations')
-        .select(`
-          amount,
-          created_at,
-          profiles!inner(donor_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (recentError) throw recentError;
 
-      // Fetch all donations with profiles for top donors calculation
+      // Fetch top donors (grouped by name, summed amount)
       const { data: topData, error: topError } = await supabase
         .from('donations')
-        .select(`
-          amount,
-          profiles!inner(donor_name)
-        `);
+        .select('donor_name, amount')
+        .order('amount', { ascending: false });
 
       if (topError) throw topError;
 
       // Process recent donors
-      const formattedRecent = recentData?.map(donation => ({
-        name: (donation.profiles as any)?.donor_name || 'Anônimo',
-        amount: `${donation.amount} XLM`,
-        date: formatDate(donation.created_at)
+      const formattedRecent = recentData?.map(donor => ({
+        name: donor.donor_name,
+        amount: `${donor.amount} XLM`,
+        date: formatDate(donor.created_at)
       })) || [];
 
       // Process and group top donors
       const donorTotals = (topData || []).reduce((acc: any, donation) => {
-        const donorName = (donation.profiles as any)?.donor_name || 'Anônimo';
-        if (acc[donorName]) {
-          acc[donorName] += Number(donation.amount);
+        if (acc[donation.donor_name]) {
+          acc[donation.donor_name] += Number(donation.amount);
         } else {
-          acc[donorName] = Number(donation.amount);
+          acc[donation.donor_name] = Number(donation.amount);
         }
         return acc;
       }, {});
@@ -100,18 +81,6 @@ const Donation = () => {
       return `${days} ${days === 1 ? 'dia' : 'dias'} atrás`;
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-theme-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-theme-details" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect to auth
-  }
 
   return (
     <div className="relative min-h-screen w-full bg-theme-background overflow-hidden">

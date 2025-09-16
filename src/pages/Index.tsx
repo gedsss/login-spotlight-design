@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ProfileButton } from "@/components/ProfileButton";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 import * as StellarSdk from 'stellar-sdk';
-import { Wallet, CheckCircle, AlertCircle, Key, Loader2 } from "lucide-react";
+import { Wallet, CheckCircle, AlertCircle, Key } from "lucide-react";
 import freighterApi, { 
   isConnected, 
   isAllowed, 
@@ -14,20 +12,12 @@ import freighterApi, {
 } from '@stellar/freighter-api';
 
 const Index = () => {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'verified' | 'connected' | 'error'>('idle');
   const [userAddress, setUserAddress] = useState<string>('');
   const [publicKeyInput, setPublicKeyInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-
-  // Redirect to auth if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   // Helper para evitar ficar carregando eternamente
   const withTimeout = <T,>(promise: Promise<T>, ms = 5000, timeoutMessage = 'Tempo esgotado aguardando resposta do Freighter.'): Promise<T> => {
@@ -136,22 +126,9 @@ const Index = () => {
     }, 1500);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-theme-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-theme-details" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect to auth
-  }
-
   return (
     <div className="relative flex h-screen w-full items-center justify-center bg-theme-background overflow-hidden">
       <ThemeToggle />
-      <ProfileButton />
       {/* Geometric background pattern */}
       <div className="absolute inset-0 opacity-60 overflow-hidden">
         <svg
