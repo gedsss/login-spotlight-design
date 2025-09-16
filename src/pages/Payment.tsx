@@ -12,59 +12,54 @@ const Payment = () => {
   const [donorName, setDonorName] = useState('');
   const [amount, setAmount] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
+  const [sourceSecretKey, setSourceSecretKey] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [transactionHash, setTransactionHash] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleTransaction = async () => {
-    if (!donorName || !amount || !destinationAddress) {
-      alert('Por favor, preencha todos os campos');
+    if (!donorName || !amount || !destinationAddress || !sourceSecretKey) {
+      setErrorMessage('Por favor, preencha todos os campos');
       return;
     }
 
     setIsProcessing(true);
     setTransactionStatus('processing');
+    setErrorMessage('');
 
     try {
-      // @ts-ignore
-      const { signTransaction, getPublicKey } = await import('@stellar/freighter-api');
       // @ts-ignore  
       const StellarSdk = await import('stellar-sdk');
 
-      // Obter chave pública do usuário
-      const userPublicKey = await getPublicKey();
-
       // Conectar ao servidor Stellar (usando testnet para desenvolvimento)
       const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-      
-      // Carregar conta do usuário
-      const account = await server.loadAccount(userPublicKey);
+      const networkPassphrase = StellarSdk.Networks.TESTNET;
 
-      // Criar transação
-      const transaction = new StellarSdk.TransactionBuilder(account, {
-        fee: StellarSdk.BASE_FEE,
-        networkPassphrase: StellarSdk.Networks.TESTNET
+      // Criar o keypair a partir da chave secreta
+      const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+
+      // 1. Carregar a conta de origem
+      const account = await server.loadAccount(sourceKeypair.publicKey());
+
+      // 2. Construir a transação com a operação de pagamento
+      const transaction = new StellarSdk.TransactionBuilder(account, { 
+        fee: StellarSdk.BASE_FEE, 
+        networkPassphrase: networkPassphrase 
       })
-      .addOperation(
-        StellarSdk.Operation.payment({
-          destination: destinationAddress,
-          asset: StellarSdk.Asset.native(), // XLM
-          amount: amount
-        })
-      )
-      .setTimeout(100)
+      .addOperation(StellarSdk.Operation.payment({
+        destination: destinationAddress,
+        asset: StellarSdk.Asset.native(), // Define que o ativo é o XLM
+        amount: amount
+      }))
+      .setTimeout(30) // Define um tempo limite para a transação
       .build();
 
-      // Solicitar assinatura via Freighter
-      const signedTransactionXDR = await signTransaction(transaction.toXDR(), {
-        networkPassphrase: StellarSdk.Networks.TESTNET
-      });
+      // 3. Assinar a transação
+      transaction.sign(sourceKeypair);
 
-      // Reconstruir a transação assinada a partir do XDR
-      const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(signedTransactionXDR.signedTxXdr, StellarSdk.Networks.TESTNET);
-
-      // Enviar transação para a rede
-      const transactionResult = await server.submitTransaction(signedTransaction);
+      // 4. Enviar a transação para a rede Stellar
+      const result = await server.submitTransaction(transaction);
       
       // Salvar doação no banco de dados
       const { error: dbError } = await supabase
@@ -72,20 +67,21 @@ const Payment = () => {
         .insert({
           donor_name: donorName,
           amount: parseFloat(amount),
-          transaction_hash: transactionResult.hash
+          transaction_hash: result.hash
         });
 
       if (dbError) {
         console.error('Erro ao salvar doação no banco:', dbError);
       }
       
-      setTransactionHash(transactionResult.hash);
+      setTransactionHash(result.hash);
       setTransactionStatus('success');
-      console.log('Transação enviada com sucesso!', transactionResult);
+      console.log('Transação enviada com sucesso! Hash:', result.hash);
       
-    } catch (error) {
-      console.error('Erro ao processar transação:', error);
+    } catch (error: any) {
+      console.error('Erro ao enviar a transação:', error);
       setTransactionStatus('error');
+      setErrorMessage(error.message || 'Erro desconhecido ao processar transação');
     } finally {
       setIsProcessing(false);
     }
@@ -194,9 +190,29 @@ const Payment = () => {
                     />
                   </div>
                   
+                  <div className="space-y-2">
+                    <Label htmlFor="secretKey" className="text-theme-surface-foreground font-semibold">
+                      Chave Secreta (Secret Key)
+                    </Label>
+                    <Input
+                      id="secretKey"
+                      type="password"
+                      placeholder="SXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                      value={sourceSecretKey}
+                      onChange={(e) => setSourceSecretKey(e.target.value)}
+                      className="bg-theme-background border-theme-details text-theme-surface-foreground"
+                    />
+                  </div>
+
+                  {errorMessage && (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
+                      <p className="text-red-500 text-sm">{errorMessage}</p>
+                    </div>
+                  )}
+                  
                   <Button 
                     onClick={handleTransaction}
-                    disabled={isProcessing || !donorName || !amount || !destinationAddress}
+                    disabled={isProcessing || !donorName || !amount || !destinationAddress || !sourceSecretKey}
                     size="lg" 
                     className="w-full mt-6 bg-white text-black hover:bg-white/80 font-bold py-4 text-lg"
                   >
@@ -213,7 +229,7 @@ const Payment = () => {
                     Processando transação...
                   </p>
                   <p className="text-sm text-theme-surface-foreground/70">
-                    Aguarde a confirmação na carteira Freighter
+                    Enviando para a rede Stellar
                   </p>
                 </div>
               )}
@@ -233,7 +249,9 @@ const Payment = () => {
                       setDonorName('');
                       setAmount('');
                       setDestinationAddress('');
+                      setSourceSecretKey('');
                       setTransactionHash('');
+                      setErrorMessage('');
                     }}
                     variant="outline"
                     className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background"
@@ -249,8 +267,16 @@ const Payment = () => {
                   <p className="text-red-500 font-semibold">
                     Erro ao processar transação
                   </p>
+                  {errorMessage && (
+                    <p className="text-sm text-red-500/80 break-words px-4">
+                      {errorMessage}
+                    </p>
+                  )}
                   <Button 
-                    onClick={() => setTransactionStatus('idle')}
+                    onClick={() => {
+                      setTransactionStatus('idle');
+                      setErrorMessage('');
+                    }}
                     variant="outline"
                     className="bg-theme-background border-theme-details text-theme-surface-foreground hover:bg-theme-details hover:text-theme-background"
                   >
