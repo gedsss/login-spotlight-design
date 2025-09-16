@@ -22,6 +22,7 @@ export type Database = {
           id: string
           transaction_hash: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           transaction_hash?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -37,6 +39,28 @@ export type Database = {
           donor_name?: string
           id?: string
           transaction_hash?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          donor_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          donor_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          donor_name?: string | null
+          id?: string
           updated_at?: string
         }
         Relationships: []
