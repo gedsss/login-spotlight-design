@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfileButton } from "@/components/ProfileButton";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -84,6 +85,7 @@ const Donation = () => {
   return (
     <div className="relative min-h-screen w-full bg-theme-background overflow-hidden">
       <ThemeToggle />
+      <ProfileButton />
       
       {/* Geometric background pattern */}
       <div className="absolute inset-0 opacity-60 overflow-hidden">
