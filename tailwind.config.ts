@@ -55,6 +55,12 @@ export default {
         "theme-details": "hsl(var(--theme-details))",
         "theme-surface": "hsl(var(--theme-surface))",
         "theme-surface-foreground": "hsl(var(--theme-surface-foreground))",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
